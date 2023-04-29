@@ -1,22 +1,24 @@
 from .abstract_model import _AbstractModel
-from .response import Response
 from .chat import Chat
+from .response import Response
 from ..util import if_not_none
 
 
 class Message(_AbstractModel):
-    message_id: int
-    chat: Chat
-    text: str
-
-    def __init__(self, json):
+    def __init__(self, json: dict):
         super().__init__(json)
-        self.chat = Chat(self.chat)
+
+        self.message_id = json.get('message_id')
+        self.chat = if_not_none(json.get('chat'), lambda v: Chat(v))
+        self.reply_to_message = if_not_none(json.get('reply_to_message'), lambda v: Message(v))
+        self.text = json.get('text')
+
+    def __repr__(self) -> str:
+        return f'Message(message_id={self.message_id}, chat={self.chat}, reply_to_message={self.reply_to_message})'
 
 
 class MessageResponse(Response):
-    result: Message
-
-    def __init__(self, json):
+    def __init__(self, json: dict):
         super().__init__(json)
-        self.result = if_not_none(super()._field('result'), lambda v: Message(v))
+
+        self.result = if_not_none(json.get('result'), lambda v: Message(v))

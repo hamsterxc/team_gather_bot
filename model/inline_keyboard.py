@@ -1,8 +1,15 @@
 from telegram.model.request.send_message import InlineKeyboardMarkup, InlineKeyboardButton
 
 
+class _InlineKeyboardButton:
+    def __init__(self, text: str, data: str):
+        self.text = text
+        self.data = data
+
+
 class InlineKeyboard:
-    _buttons = []
+    def __init__(self):
+        self._buttons: list[list[_InlineKeyboardButton]] = []
 
     def add_row(self):
         self._buttons.append([])
@@ -18,12 +25,3 @@ class InlineKeyboard:
                 lambda button: InlineKeyboardButton(button.text, button.data),
                 row)),
             self._buttons)))
-
-
-class _InlineKeyboardButton:
-    text: str
-    data: str
-
-    def __init__(self, text: str, data: str):
-        self.text = text
-        self.data = data

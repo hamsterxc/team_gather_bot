@@ -1,3 +1,3 @@
-class AwsException(BaseException):
+class AwsException(Exception):
     def __init__(self, message: str):
         super().__init__(message)

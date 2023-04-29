@@ -23,9 +23,6 @@ _state_name = {
 
 
 class Command:
-    action: str
-    arguments: dict
-
     def __init__(self, action: str, arguments: dict):
         self.action = action
         self.arguments = arguments
@@ -113,7 +110,7 @@ def parse(command: str, parse_action: bool) -> Command:
         if len(key) > 0:
             arguments[key] = value
     else:
-        raise ParseException(command, "command", "invalid end state " + _get_state_name(state))
+        raise ParseException(command, "command", f"invalid end state {_get_state_name(state)}")
 
     return Command(action, arguments)
 

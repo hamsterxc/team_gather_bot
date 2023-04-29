@@ -2,13 +2,16 @@ import requests
 
 import logger
 from .telegram_exception import TelegramException
-from ..model.request.get_updates import GetUpdatesRequest
-from ..model.request.send_message import SendMessageRequest
-from ..model.response.message import MessageResponse, Message
-from ..model.response.update import UpdateResponse
-from ..model.response.user import UserResponse, User
 from ..model.request.edit_message import EditMessageRequest
-from requests import Response
+from ..model.request.get_updates import GetUpdatesRequest
+from ..model.request.pin_message import PinMessageRequest
+from ..model.request.send_message import SendMessageRequest
+from ..model.request.unpin_message import UnpinMessageRequest
+from ..model.response.message import MessageResponse, Message
+from ..model.response.response import Response
+from ..model.response.update import UpdateResponse, Update
+from ..model.response.user import UserResponse, User
+from ..model.util import to_json_string
 
 
 class Telegram:
@@ -26,7 +29,7 @@ class Telegram:
             lambda v: v.result
         )
 
-    def get_updates(self, request: GetUpdatesRequest = None) -> list:
+    def get_updates(self, request: GetUpdatesRequest = None) -> list[Update]:
         return self._request(
             # lambda: requests.post(self._url_base + '/getUpdates', json=request.to_json()),
             lambda: self._send_request('POST', self._url_base + '/getUpdates', body=request.to_json()),
@@ -49,12 +52,31 @@ class Telegram:
             lambda v: v.result
         )
 
-    def _send_request(self, method: str, url: str, body = None) -> Response:
+    def pin_message(self, request: PinMessageRequest) -> Response:
+        return self._request(
+            lambda: self._send_request('POST', self._url_base + '/pinChatMessage', body=request.to_json()),
+            lambda v: Response(v),
+            lambda v: v
+        )
+
+    def unpin_message(self, request: UnpinMessageRequest) -> Response:
+        return self._request(
+            lambda: self._send_request('POST', self._url_base + '/unpinChatMessage', body=request.to_json()),
+            lambda v: Response(v),
+            lambda v: v
+        )
+
+    def _send_request(self, method: str, url: str, body: dict = None) -> requests.Response:
         logger.debug("--> {} {}".format(method, url))
         if body:
-            logger.debug(str(body))
+            logger.debug(to_json_string(body))
 
-        response = requests.request(method, url, json=body)
+        response = requests.request(
+            method,
+            url,
+            headers={'Content-Type': 'application/json'},
+            data=to_json_string(body) if body is not None else None
+        )
 
         logger.debug("<-- HTTP {}".format(response.status_code))
         text = response.text

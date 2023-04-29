@@ -1,4 +1,4 @@
-class ParseException(BaseException):
+class ParseException(Exception):
     def __init__(self, input: str, type: str = None, message: str = None):
         super().__init__("Invalid {} '{}'{}".format(
             type if type is not None else "input",

@@ -1,17 +1,20 @@
-from .parse_exception import ParseException
 import datetime
-import pytz
+import zoneinfo
+
+from .parse_exception import ParseException
 
 
 class TimeParser:
-    timezone: datetime.tzinfo
+    def __init__(self, now_timestamp: int, timezone: zoneinfo.ZoneInfo):
+        self._now_timestamp = now_timestamp
+        self._timezone = timezone
 
-    def __init__(self, timezone: str):
-        self.timezone = pytz.timezone(timezone)
+    def now(self) -> int:
+        return self._now_timestamp
 
-    def parse_datetime(self, input: str) -> int:
+    def parse_datetime(self, input: str) -> int | None:
         if input is None:
-            return int(self._now().timestamp())
+            return None
 
         parts = input.split('T')
         if len(parts) == 1:
@@ -24,9 +27,9 @@ class TimeParser:
         else:
             raise ParseException(input, "datetime")
 
-        return int(datetime.datetime(year, month, day, hour, minute, second).timestamp())
+        return int(datetime.datetime(year, month, day, hour, minute, second, tzinfo=self._timezone).timestamp())
 
-    def _parse_date(self, input: str, full_input: str) -> list:
+    def _parse_date(self, input: str, full_input: str) -> list[int]:
         parts = input.split('-')
         if len(parts) == 1:
             now = self._now()
@@ -39,7 +42,7 @@ class TimeParser:
         else:
             raise ParseException(full_input, "datetime")
 
-    def _parse_time(self, input: str, full_input: str) -> list:
+    def _parse_time(self, input: str, full_input: str) -> list[int]:
         parts = input.split(':')
         if len(parts) == 1:
             return [int(parts[0]), 0, 0]
@@ -50,5 +53,11 @@ class TimeParser:
         else:
             raise ParseException(full_input, "datetime")
 
-    def _now(self):
-        return datetime.datetime.now(self.timezone)
+    def _localize(self, timestamp: int) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(timestamp).astimezone(self._timezone)
+
+    def _now(self) -> datetime.datetime:
+        return self._localize(self._now_timestamp)
+
+    def format(self, timestamp: int) -> str:
+        return self._localize(timestamp).strftime('%Y-%m-%d %H:%M')

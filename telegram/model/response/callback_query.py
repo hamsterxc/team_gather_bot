@@ -5,12 +5,13 @@ from ..util import if_not_none
 
 
 class CallbackQuery(_AbstractModel):
-    id: str
-    from_user: User
-    message: Message
-    data: str
-
-    def __init__(self, json):
+    def __init__(self, json: dict):
         super().__init__(json)
-        self.from_user = if_not_none(super()._field('from'), lambda v: User(v))
-        self.message = if_not_none(super()._field('message'), lambda v: Message(v))
+
+        self.id = json.get('id')
+        self.from_user = if_not_none(json.get('from'), lambda v: User(v))
+        self.message = if_not_none(json.get('message'), lambda v: Message(v))
+        self.data = json.get('data')
+
+    def __repr__(self) -> str:
+        return f'CallbackQuery(id={self.id}, data={self.data})'
