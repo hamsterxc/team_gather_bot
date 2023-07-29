@@ -74,21 +74,22 @@ class TeamGatherService:
         except ParseException as e:
             return self._handle_invalid(message.chat.id, message.message_id, text)
 
+        reply_to_message_id = None if message.reply_to_message is None else message.reply_to_message.message_id
         if command.action == 'help':
             return self._handle_help(message.chat.id, message.message_id)
         elif command.action == 'schedule' or command.action == 'plan':
             return self._handle_schedule(message.chat.id, message.message_id, command.arguments)
         elif command.action == 'start':
-            return self._handle_start(message.chat.id, message.message_id, message.reply_to_message.message_id)
+            return self._handle_start(message.chat.id, message.message_id, reply_to_message_id)
         elif command.action == 'stop':
-            return self._handle_stop(message.chat.id, message.message_id, message.reply_to_message.message_id)
+            return self._handle_stop(message.chat.id, message.message_id, reply_to_message_id)
         elif command.action == 'cancel':
-            return self._handle_cancel(message.chat.id, message.message_id, message.reply_to_message.message_id)
+            return self._handle_cancel(message.chat.id, message.message_id, reply_to_message_id)
         elif command.action == 'edit':
-            return self._handle_edit(message.chat.id, message.message_id, message.reply_to_message.message_id, command.arguments)
+            return self._handle_edit(message.chat.id, message.message_id, reply_to_message_id, command.arguments)
         else:
             return self._handle_unknown(message.chat.id, message.message_id, command.action)
-    
+
     def _handle_help(self, chat_id: str, message_id: int) -> Command:
         """Handle a help command
 
