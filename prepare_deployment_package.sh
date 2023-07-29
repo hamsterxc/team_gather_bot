@@ -4,7 +4,7 @@ rm -f target.zip
 rm -rf target/
 
 if [ `git status -s | wc -l` -gt 0 ]; then
-  echo 'Warning! Uncommitted files will not be included in the deplyment package.'
+  echo 'Warning! Uncommitted files will not be included in the deployment package.'
 fi
 git clone --no-hardlinks . target/
 rm -rf target/.git

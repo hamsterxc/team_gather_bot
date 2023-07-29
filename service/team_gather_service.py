@@ -45,10 +45,10 @@ class TeamGatherService:
                 if message.text and message.text.startswith(prefix):
                     command_text = message.text.removeprefix(prefix).strip()
                     command = self._handle_command(message, command_text)
-                    logger.debug(f"Processed update: {command_text}")
+                    logger.info(f"Processed update: {command_text}; result: {command}")
             elif update.callback_query is not None:
                 command = self._handle_callback(update.callback_query)
-                logger.debug(f"Processed callback: {update.callback_query}")
+                logger.info(f"Processed callback: {update.callback_query}; result: {command}")
             self._settings.last_update_id = update.update_id
 
             if command is not None:
@@ -62,7 +62,7 @@ class TeamGatherService:
             tick_command = self._handle_tick(command.gathering)
             if tick_command is not None:
                 commands[id] = tick_command
-                logger.debug(f"Processed tick: {command.gathering}")
+                logger.info(f"Processed tick: {command.gathering}; result: {command}")
 
         for command in commands.values():
             command.execute_telegram_commands()

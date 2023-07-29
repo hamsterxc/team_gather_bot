@@ -84,10 +84,12 @@ class Gatherings:
             ExpressionAttributeNames={'#state': 'state'},
             ExpressionAttributeValues={':state': _DynamodbDocument._to_dynamodb_json(_DynamodbDocument(), STATE_STOPPED)}
         )
-        logger.debug(f"Gatherings read: {result}")
+        logger.debug(f"Gatherings read, dynamodb result: {result}")
 
         self.gatherings: dict[str, Gathering] = self._from_dynamodb_json(result)
         self._gatherings_original: dict[str, Gathering] = self._from_dynamodb_json(result)
+
+        logger.debug(f"Gatherings read: {self.gatherings}")
 
     def _from_dynamodb_json(self, dynamodb_json_items) -> dict[str, Gathering]:
         return {v.id: v for v in map(lambda dynamodb_json: Gathering.from_dynamodb_json(Gathering(), dynamodb_json), dynamodb_json_items['Items'])}
@@ -109,7 +111,8 @@ class Gatherings:
         original = self._gatherings_original.get(gathering.id)
         if original is None or not self._is_equal(gathering, original):
             json = gathering.to_dynamodb_json()
-            self._dynamodb_client.put_item(TableName=self._table_name, Item=json)
+            result = self._dynamodb_client.put_item(TableName=self._table_name, Item=json)
+            logger.debug(f"Gathering saved, dynamodb result: {result}")
             logger.debug(f"Gathering saved: {json}")
         self._gatherings_original[gathering.id] = gathering
 

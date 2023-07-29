@@ -10,7 +10,7 @@ class Settings(_DynamodbDocument):
         self._dynamodb_client = dynamodb_client
 
         result = self._dynamodb_client.scan(TableName=self._table_name)
-        logger.debug(f"Settings read: {result}")
+        logger.debug(f"Settings read, dynamodb result: {result}")
 
         items = result['Items']
         items_len = len(items)
@@ -32,6 +32,8 @@ class Settings(_DynamodbDocument):
         else:
             raise AwsException("Non-unique settings entry: found {} entries".format(items_len))
 
+        logger.debug(f"Settings read: {self}")
+
     def next_gathering_id(self) -> str:
         self.last_gathering_id = str(int(self.last_gathering_id) + 1)
         return self.last_gathering_id
@@ -46,4 +48,8 @@ class Settings(_DynamodbDocument):
             'last_gathering_id': self._to_dynamodb_json(self.last_gathering_id),
         }
         result = self._dynamodb_client.put_item(TableName=self._table_name, Item=item, ReturnValues='ALL_OLD')
-        logger.debug(f"Settings saved: {result}")
+        logger.debug(f"Settings saved, dynamodb result: {result}")
+        logger.debug(f"Settings saved: {self}")
+
+    def __repr__(self) -> str:
+        return str(self.__dict__)

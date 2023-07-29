@@ -5,12 +5,14 @@ Available commands:
 * <b>help</b> - this help.
 
 * <b>schedule</b> or <b>plan</b> - schedule a gather, parameters (all parameters are optional unless stated otherwise):
-  - <i>start</i>: gather start time in <code>[[[YYYY-]MM-]DD'T']HH[:mm[:ss]]</code> format, by default the gathering starts at the time of schedule message being sent;
+  - <i>start</i>: gather start time in <code>[[[YYYY-]MM-]DD'T']HH[:mm[:ss]]</code> format
+    where missing date parts are equal to the ones of today, missing time parts are equal to zero,
+    by default the gathering starts at the time of schedule message being sent;
   - <i>end</i>: gather end time in the same format, only manual end by default;
   - <i>max</i>: the maximum number of participants, 6 by default;
   - <i>what</i>: event name, a required parameter;
-  - <i>where</i>: event place;
-  - <i>when</i>: event time.
+  - <i>where</i>: event place, empty by default;
+  - <i>when</i>: event time, empty by default.
 
 * <b>start</b> - manual gathering start, this command should be sent in response to the gathering schedule message.
 
@@ -20,7 +22,7 @@ Available commands:
 
 * <b>edit</b> - gathering edit, accepts the same parameters as <b>schedule</b>.
 
-Upon reaching the gathering end time or receiving the same command, the gathering poll is closed and the results message is sent.
+Upon reaching the gathering end time or receiving the <b>end</b> command, the gathering poll is closed and the results message is sent.
 
 <i><a href="https://github.com/hamsterxc/team_gather_bot">Source code</a>.</i>
 """.strip()
