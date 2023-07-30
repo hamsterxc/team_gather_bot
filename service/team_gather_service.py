@@ -362,27 +362,38 @@ class TeamGatherService:
             name = callback_query.from_user.name()
             data = callback_query.data
             if data == 'yes':
-                if len(gathering.participants_yes) < gathering.max_count:
+                if (name in gathering.participants_yes) or (len(gathering.participants_yes) >= gathering.max_count):
+                    command = None
+                else:
                     gathering.participants_yes.add(name)
                     gathering.participants_maybe.discard(name)
                     gathering.participants_no.discard(name)
             elif data == 'maybe':
-                gathering.participants_yes.discard(name)
-                gathering.participants_maybe.add(name)
-                gathering.participants_no.discard(name)
+                if name in gathering.participants_maybe:
+                    command = None
+                else:
+                    gathering.participants_yes.discard(name)
+                    gathering.participants_maybe.add(name)
+                    gathering.participants_no.discard(name)
             elif data == 'no':
-                gathering.participants_yes.discard(name)
-                gathering.participants_maybe.discard(name)
-                gathering.participants_no.add(name)
+                if name in gathering.participants_no:
+                    command = None
+                else:
+                    gathering.participants_yes.discard(name)
+                    gathering.participants_maybe.discard(name)
+                    gathering.participants_no.add(name)
             elif data == 'remove':
-                gathering.participants_yes.discard(name)
-                gathering.participants_maybe.discard(name)
-                gathering.participants_no.discard(name)
+                if (name not in gathering.participants_yes) and (name not in gathering.participants_maybe) and (name not in gathering.participants_no):
+                    command = None
+                else:
+                    gathering.participants_yes.discard(name)
+                    gathering.participants_maybe.discard(name)
+                    gathering.participants_no.discard(name)
             else:
                 gathering = None
                 command.add_telegram_command(self._new_send_message_command(chat_id, message_id, self._i18n.UNKNOWN_COMMAND.format(data)))
 
-            if gathering is not None:
+            if command is not None and gathering is not None:
                 command.add_telegram_command(self._new_edit_message_command(gathering.chat_id, gathering.message_id, self._build_poll_message_text(gathering), self._build_poll_message_keyboard()))
                 command.gathering = gathering
 
