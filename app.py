@@ -12,6 +12,7 @@ from aws.settings import Settings
 from service.team_gather_service import TeamGatherService
 from service.time_parser import TimeParser
 from telegram.api.telegram_api import Telegram
+from telegram.api.telegram_exception import TelegramException
 
 
 class Handler:
@@ -57,7 +58,11 @@ def handler(event, context):
     time_between_invocations = int(os.environ.get('TIME_BETWEEN_INVOCATIONS', '2'))
     time_start = time.time()
     while time.time() - time_start < execution_timeout:
-        handler.handle()
+        try:
+            handler.handle()
+        except TelegramException as e:
+            logger.error(str(e))
+
         if time.time() - time_start < execution_timeout - time_between_invocations:
             time.sleep(time_between_invocations)
         else:
