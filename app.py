@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import os
+import time
 from zoneinfo import ZoneInfo
 
 import boto3
@@ -50,6 +51,14 @@ def handler(event, context):
 
     dynamodb_client = boto3.client('dynamodb')
     telegram = Telegram(os.environ['TELEGRAM_TOKEN'])
-
     handler = Handler(dynamodb_client, telegram)
-    handler.handle()
+
+    execution_timeout = int(os.environ.get('EXECUTION_TIMEOUT', '1'))
+    time_between_invocations = int(os.environ.get('TIME_BETWEEN_INVOCATIONS', '2'))
+    time_start = time.time()
+    while time.time() - time_start < execution_timeout:
+        handler.handle()
+        if time.time() - time_start < execution_timeout - time_between_invocations:
+            time.sleep(time_between_invocations)
+        else:
+            break
